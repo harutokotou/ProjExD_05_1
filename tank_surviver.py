@@ -160,6 +160,7 @@ def main():
         screen.blit(bg_img, [0, 0])
 
 
+
         bird.update(key_lst, screen)
         pg.display.update()
 
