@@ -13,7 +13,7 @@ HEIGHT = 900  # ゲームウィンドウの高さ
 def check_bound(obj: pg.Rect) -> tuple[bool, bool]:
     """
     オブジェクトが画面内か画面外かを判定し，真理値タプルを返す
-    引数 obj：オブジェクト（爆弾，こうかとん，ビーム）SurfaceのRect
+    引数 obj：オブジェクト（爆弾，戦車，ビーム）SurfaceのRect
     戻り値：横方向，縦方向のはみ出し判定結果（画面内：True／画面外：False）
     """
     yoko, tate = True, True
@@ -28,7 +28,7 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect) -> tuple[float, float]:
     """
     orgから見て，dstがどこにあるかを計算し，方向ベクトルをタプルで返す
     引数1 org：爆弾SurfaceのRect
-    引数2 dst：こうかとんSurfaceのRect
+    引数2 dst：戦車SurfaceのRect
     戻り値：orgから見たdstの方向ベクトルを表すタプル
     """
     x_diff, y_diff = dst.centerx-org.centerx, dst.centery-org.centery
@@ -38,7 +38,7 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect) -> tuple[float, float]:
 
 class Bird(pg.sprite.Sprite):
     """
-    ゲームキャラクター（こうかとん）に関するクラス
+    ゲームキャラクター（戦車）に関するクラス
     """
     delta = {  # 押下キーと移動量の辞書
         pg.K_UP: (0, -1),
@@ -49,14 +49,14 @@ class Bird(pg.sprite.Sprite):
 
     def __init__(self, num: int, xy: tuple[int, int]):
         """
-        こうかとん画像Surfaceを生成する
-        引数1 num：こうかとん画像ファイル名の番号
-        引数2 xy：こうかとん画像の位置座標タプル
+        戦車画像Surfaceを生成する
+        引数1 num：戦車画像ファイル名の番号
+        引数2 xy：戦車画像の位置座標タプル
         """
         super().__init__()
 
         img0 = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 0, 2.0)
-        img = pg.transform.flip(img0, True, False)  # デフォルトのこうかとん
+        img = pg.transform.flip(img0, True, False)  # デフォルトの戦車
         self.imgs = {
             (+1, 0): img,  # 右
             (+1, -1): pg.transform.rotozoom(img, 45, 1.0),  # 右上
@@ -81,8 +81,8 @@ class Bird(pg.sprite.Sprite):
 
     def change_img(self, num: int, screen: pg.Surface):
         """
-        こうかとん画像を切り替え，画面に転送する
-        引数1 num：こうかとん画像ファイル名の番号
+        戦車画像を切り替え，画面に転送する
+        引数1 num：戦車画像ファイル名の番号
         引数2 screen：画面Surface
         """
 
@@ -93,7 +93,7 @@ class Bird(pg.sprite.Sprite):
     
     def change_state(self,state,hyper_life):
         """
-        こうかとんの状態を切り替えるメゾット
+        戦車の状態を切り替えるメゾット
         引数1 state: 状態を表す
         引数2 hyper_life: 発動時間
         """
@@ -104,7 +104,7 @@ class Bird(pg.sprite.Sprite):
 
     def update(self, key_lst: list[bool], screen: pg.Surface):
         """
-        押下キーに応じてこうかとんを移動させる
+        押下キーに応じて戦車を移動させる
         引数1 key_lst：押下キーの真理値リスト
         引数2 screen：画面Surface
         """
@@ -142,6 +142,15 @@ class Bird(pg.sprite.Sprite):
     def get_direction(self) -> tuple[int, int]:
         return self.dire
 
+
+class my_bomb(pg.sprite.Sprite):
+    """
+    自陣の戦車の爆弾クラス
+    """
+    def __init__(self, bird: Bird):
+        """
+        爆弾画像Surfaceを生成する
+        """
 
 def main():
     pg.display.set_caption("タンクサバイバー")
