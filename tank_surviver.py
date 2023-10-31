@@ -147,7 +147,8 @@ def main():
     pg.display.set_caption("タンクサバイバー")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
-
+    time_limit = 30
+    start_time = time.time()
 
     bird = Bird(3, (900, 400))
     while True:
