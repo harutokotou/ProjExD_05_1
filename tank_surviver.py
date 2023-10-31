@@ -55,7 +55,7 @@ class Bird(pg.sprite.Sprite):
         """
         super().__init__()
 
-        img0 = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 0, 2.0)
+        img0 = pg.transform.rotozoom(pg.image.load(f"ex05/fig/my_tank.png"), 0, 2.0)
         img = pg.transform.flip(img0, True, False)  # デフォルトのこうかとん
         self.imgs = {
             (+1, 0): img,  # 右
@@ -146,21 +146,44 @@ class Bird(pg.sprite.Sprite):
 def main():
     pg.display.set_caption("タンクサバイバー")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
-    bg_img = pg.image.load("fig/pg_bg.jpg")
+    bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
 
 
     bird = Bird(3, (900, 400))
+    tank = teki_tank()
     while True:
         key_lst = pg.key.get_pressed()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
+            if key_lst[pg.K_SPACE]:
+                beam = bird.fire_beam()
+                beams.add(beam)
 
         screen.blit(bg_img, [0, 0])
 
-
+        key_lst = pg.key.get_pressed()
+       
+        screen.fill((255, 255, 255))
+        screen.blit(tank.image, tank.rect)
+        pg.display.flip()
         bird.update(key_lst, screen)
         pg.display.update()
+
+class teki_tank(pg.sprite.Sprite):
+    """
+    敵機に関するクラス
+    """
+
+    imgs = [pg.image.load(f"ex05/fig/pg_bg.jpg")]
+    imgs2 = [pg.image.load(f"ex05/fig/pg_bg.jpg")]
+
+    def __init__(self):
+        super().__init()
+        # ランダムに imgs または imgs2 から画像を選択
+        self.image = random.choice([random.choice(__class__.imgs), random.choice(__class__.imgs2)])
+        self.rect = self.image.get_rect()
+        self.rect.center = (random.randint(0, WIDTH), random.randint(0, HEIGHT))
 
 
 if __name__ == "__main__":
