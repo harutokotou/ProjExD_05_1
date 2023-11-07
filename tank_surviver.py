@@ -62,7 +62,7 @@ class My_Tank(pg.sprite.Sprite):
         """
         super().__init__()
 
-        img0 = pg.transform.rotozoom(pg.image.load(f"ex05/fig/my_tank.png"), 45, 2.0)
+        img0 = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 45, 2.0)
         img = pg.transform.flip(img0, True, False)  # デフォルトのmy戦車
         """
         戦車画像Surfaceを生成する
@@ -102,7 +102,7 @@ class My_Tank(pg.sprite.Sprite):
         引数2 screen：画面Surface
         """
 
-        self.image = pg.transform.rotozoom(pg.image.load(f"ex05/fig/{num}.png"), 0, 2.0)
+        self.image = pg.transform.rotozoom(pg.image.load(f"fig/{num}.png"), 0, 2.0)
         screen.blit(self.image, self.rect)
 
 
@@ -171,7 +171,7 @@ class teki_tank(pg.sprite.Sprite):
     def __init__(self, num: int, xy: tuple[int, int]):
 
         super().__init__()
-        teki_Img = pg.transform.rotozoom(pg.image.load(f"ex05/fig/my_tank.png"), 45, 2.0)
+        teki_Img = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 45, 2.0)
         teki_Img2 = pg.transform.flip(teki_Img, True, False)  # デフォルトのmy戦車
         
         self.imgs = {
@@ -225,11 +225,6 @@ class teki_tank(pg.sprite.Sprite):
     def get_direction(self) -> tuple[int, int]:
         return self.dire
 
-def main():
-    #使用するフォント
-    screen = Screen(1600, 900, "タンクサバイバー") #ゲームウィンドウの幅 # ゲームウィンドウの高さ
-    bg_img = pg.image.load("ex05/fig/pg_bg.jpg") #背景画像を読み込み
-    bg2_img = pg.image.load("ex05/fig/pg_bg2.jpg") 
 
 class My_Bomb(pg.sprite.Sprite):
     """
@@ -239,7 +234,8 @@ class My_Bomb(pg.sprite.Sprite):
         """
         爆弾画像Surfaceを生成する
         """
-        super().__init__()
+        super().__init__(my_tank)
+        my_tank = My_Tank(3, (200, 700))
         self.vx, self.vy = my_tank.get_direction()
 
         angle = math.degrees(math.atan2(-self.vy, self.vx))
@@ -261,6 +257,10 @@ class My_Bomb(pg.sprite.Sprite):
             self.kill()
 
 def main():
+    #使用するフォント
+    screen = Screen(1600, 900, "タンクサバイバー") #ゲームウィンドウの幅 # ゲームウィンドウの高さ
+    bg_img = pg.image.load("fig/pg_bg.jpg") #背景画像を読み込み
+    bg2_img = pg.image.load("fig/pg_bg2.jpg")
     pg.display.set_caption("kabe")
     
     tate_bar1 = Wall(200, 300, 30, 300, (0, 0, 255))
@@ -283,7 +283,10 @@ def main():
 
 
     tanks = pg.sprite.Group() #戦車用のコンテナの作成
-    tanks.add(My_tank(3, (200, 700)),teki_tank(3, (1400, 200)))
+    tanks.add(My_Tank(3, (200, 700)), teki_tank(3, (1400, 200)))
+
+    my_bombs = pg.sprite.Group()
+    my_bombs.add(My_Bomb(tanks))
 
 
     while True:
@@ -303,30 +306,24 @@ def main():
         if screen_num == 1:
             pg.display.update()
             screen.disp.blit(bg_img, [0, 0])
+            all_sprites.draw(screen)
             tanks.update(key_lst, screen)
             tanks.draw(screen)
+            my_bombs.update()
+            my_bombs.draw(screen)
 
             text = font_time.render(f"{str(int(time))}s", True, (255, 255, 255))      #描画する経過時間の設定
             screen.disp.blit(text, [700, 20])
-            my_tank = My_Tank(3, (900, 400))
-            my_bomb = pg.sprite.Group()
-
-            screen.blit(bg_img, [0, 0])
-            all_sprites.draw(screen)
-
-            my_tank.update(key_lst, screen)
-            my_bomb.update()
-            my_bomb.draw(screen)
-            pg.display.update()
+            # my_tank = My_Tank(3, (900, 400))
+            # my_bomb = pg.sprite.Group()
 
         if screen_num == 2:
             screen.disp.fill((0,0,0))
             pg.display.update()
 
-        
-            
 
-        for event in pg.event.get(): 
+
+        for event in pg.event.get():
                 if event.type == pg.QUIT: #QUITになったらFalse
                     return 0
                 if event.type == pg.USEREVENT: #タイマーイベント発生
@@ -334,8 +331,7 @@ def main():
                     if time < 0:
                         screen_num = 2
                 if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                  my_bomb.add(My_Bomb(my_tank))
-                        
+                    my_bombs.update()
 
 if __name__ == "__main__":
     pg.init()
