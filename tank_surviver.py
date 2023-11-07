@@ -9,6 +9,15 @@ import pygame as pg
 WIDTH = 1600  # ゲームウィンドウの幅
 HEIGHT = 900  # ゲームウィンドウの高さ
 
+class Wall(pg.sprite.Sprite):
+    def __init__(self, x, y, width, height, color):
+        super().__init__()
+        self.image = pg.Surface((width, height))
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+
+
 
 def check_bound(obj: pg.Rect) -> tuple[bool, bool]:
     """
@@ -86,7 +95,7 @@ class My_Tank(pg.sprite.Sprite):
         引数2 screen：画面Surface
         """
 
-        self.image = pg.transform.rotozoom(pg.image.load(f"ex04/fig/{num}.png"), 0, 2.0)
+        self.image = pg.transform.rotozoom(pg.image.load(f"ex05/fig/{num}.png"), 0, 2.0)
         screen.blit(self.image, self.rect)
 
 
@@ -176,6 +185,14 @@ def main():
     pg.display.set_caption("タンクサバイバー")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
+    pg.display.set_caption("kabe")
+    
+    tate_bar1 = Wall(200, 300, 30, 300, (0, 0, 255))
+    yoko_bar1 = Wall(300, 200, 1000, 30, (0, 0, 255))
+    tate_bar2 = Wall(1400, 300, 30, 300, (0, 0, 255))
+    yoko_bar2 = Wall(300, 700, 1000, 30, (0, 0, 255))
+    
+    all_sprites = pg.sprite.Group(tate_bar1, yoko_bar1, tate_bar2, yoko_bar2)
 
 
     my_tank = My_Tank(3, (900, 400))
@@ -189,7 +206,7 @@ def main():
                 my_bomb.add(My_Bomb(my_tank))
 
         screen.blit(bg_img, [0, 0])
-
+        all_sprites.draw(screen)
 
         my_tank.update(key_lst, screen)
         my_bomb.update()
