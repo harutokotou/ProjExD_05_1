@@ -36,7 +36,7 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect) -> tuple[float, float]:
     return x_diff/norm, y_diff/norm
 
 
-class Bird(pg.sprite.Sprite):
+class My_Tank(pg.sprite.Sprite):
     """
     ゲームキャラクター（戦車）に関するクラス
     """
@@ -55,7 +55,7 @@ class Bird(pg.sprite.Sprite):
         """
         super().__init__()
 
-        img0 = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 0, 2.0)
+        img0 = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 45, 2.0)
         img = pg.transform.flip(img0, True, False)  # デフォルトの戦車
         self.imgs = {
             (+1, 0): img,  # 右
@@ -143,14 +143,34 @@ class Bird(pg.sprite.Sprite):
         return self.dire
 
 
-class my_bomb(pg.sprite.Sprite):
+class My_Bomb(pg.sprite.Sprite):
     """
     自陣の戦車の爆弾クラス
     """
-    def __init__(self, bird: Bird):
+    def __init__(self, my_tank: My_Tank):
         """
         爆弾画像Surfaceを生成する
         """
+        super().__init__()
+        self.vx, self.vy = my_tank.get_direction()
+
+        angle = math.degrees(math.atan2(-self.vy, self.vx))
+        self.vx = math.cos(math.radians(angle))
+        self.vy = -math.sin(math.radians(angle))
+        self.image = pg.transform.rotozoom(pg.image.load(f"fig/bakudan_2.GIF"), 90, 2.0)
+        self.rect = self.image.get_rect()
+        self.rect.centery = my_tank.rect.centery+my_tank.rect.height*self.vy
+        self.rect.centerx = my_tank.rect.centerx+my_tank.rect.width*self.vx
+        self.speed = 10
+
+    def update(self):
+        """
+        爆弾を速度ベクトルself.vx, self.vyに基づき移動させる
+        引数 screen：画面Surface
+        """
+        self.rect.move_ip(+self.speed*self.vx, +self.speed*self.vy)
+        if check_bound(self.rect) != (True, True):
+            self.kill()
 
 def main():
     pg.display.set_caption("タンクサバイバー")
@@ -158,17 +178,22 @@ def main():
     bg_img = pg.image.load("fig/pg_bg.jpg")
 
 
-    bird = Bird(3, (900, 400))
+    my_tank = My_Tank(3, (900, 400))
+    my_bomb = pg.sprite.Group()
     while True:
         key_lst = pg.key.get_pressed()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                my_bomb.add(My_Bomb(my_tank))
 
         screen.blit(bg_img, [0, 0])
 
 
-        bird.update(key_lst, screen)
+        my_tank.update(key_lst, screen)
+        my_bomb.update()
+        my_bomb.draw(screen)
         pg.display.update()
 
 
