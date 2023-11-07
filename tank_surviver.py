@@ -37,6 +37,7 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect) -> tuple[float, float]:
 
 
 class Bird(pg.sprite.Sprite):
+
     """
     ゲームキャラクター（こうかとん）に関するクラス
     """
@@ -55,7 +56,7 @@ class Bird(pg.sprite.Sprite):
         """
         super().__init__()
 
-        img0 = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 0, 2.0)
+        img0 = pg.transform.rotozoom(pg.image.load(r"C:\Users\admin\Desktop\ProjExD2023\ex05-1\fig\my_tank.png"), 0, 2.0)
         img = pg.transform.flip(img0, True, False)  # デフォルトのこうかとん
         self.imgs = {
             (+1, 0): img,  # 右
@@ -77,7 +78,7 @@ class Bird(pg.sprite.Sprite):
 
         self.state = "normal"  # 初期状態は通常状態
         self.hyper_life = -1
-
+        self.enemy_count = 0
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -136,32 +137,67 @@ class Bird(pg.sprite.Sprite):
             if self.hyper_life < 0:
                 self.change_state("normal", -1)
 
-
         screen.blit(self.image, self.rect)
+        
+        if self.enemy_count >= 3:
+            self.display_victory(screen)
+    
+    
+    
     
     def get_direction(self) -> tuple[int, int]:
         return self.dire
 
 
+
+class ScoreDisplay(pg.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.enemy_count = 0
+        self.font = pg.font.SysFont('Consolas', 30)
+    
+    def score(self, tank):
+        self.enemy_count += 1
+
+    def display_victory(self, screen: pg.Surface, WIDTH, HEIGHT):
+        victory_text = "You Win!"
+        text_surface = self.font.render(victory_text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        screen.blit(text_surface, text_rect)
+
+    def display_score(self, screen):
+        score_text = f"Score: {self.enemy_count}"
+        text_surface = self.font.render(score_text, True, (255, 255, 255))
+        screen.blit(text_surface,(100,100))
+
 def main():
     pg.display.set_caption("タンクサバイバー")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
-    bg_img = pg.image.load("fig/pg_bg.jpg")
-    time_limit = 30
-    start_time = time.time()
+    bg_img = pg.image.load(r"C:\Users\admin\Desktop\ProjExD2023\ex05-1\fig\pg_bg.jpg")
+   
+    scores = pg.sprite.Group()
+    score_display = ScoreDisplay()
+    scores.add(score_display)
+
+
+    
 
     bird = Bird(3, (900, 400))
+    num_score = 0
     while True:
         key_lst = pg.key.get_pressed()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
+            
+            
+            
 
         screen.blit(bg_img, [0, 0])
-
-
-
+        # screen.fill((255, 255, 255))
         bird.update(key_lst, screen)
+        # pg.display.flip()
+        score_display.display_score(screen)
         pg.display.update()
 
 
