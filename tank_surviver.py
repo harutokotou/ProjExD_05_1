@@ -18,7 +18,6 @@ class Wall(pg.sprite.Sprite):
         self.rect.topleft = (x, y)
 
 
-
 def check_bound(obj: pg.Rect) -> tuple[bool, bool]:
     """
     オブジェクトが画面内か画面外かを判定し，真理値タプルを返す
@@ -64,7 +63,7 @@ class Bird(pg.sprite.Sprite):
         """
         super().__init__()
 
-        img0 = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 0, 2.0)
+        img0 = pg.transform.rotozoom(pg.image.load(f"ex05/fig/my_tank.png"), 45, 2.0)
         img = pg.transform.flip(img0, True, False)  # デフォルトのこうかとん
         self.imgs = {
             (+1, 0): img,  # 右
@@ -111,7 +110,7 @@ class Bird(pg.sprite.Sprite):
 
 
 
-    def update(self, key_lst: list[bool], screen: pg.Surface):
+    def update(self, key_lst: list[bool], screen: pg.Surface, walls:pg.Surface):
         """
         押下キーに応じてこうかとんを移動させる
         引数1 key_lst：押下キーの真理値リスト
@@ -130,6 +129,13 @@ class Bird(pg.sprite.Sprite):
                 self.rect.move_ip(+self.speed*mv[0], +self.speed*mv[1])
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
+        for wall in walls:
+            if self.rect.colliderect(wall.rect):
+                # 壁との衝突時に反射
+                if sum_mv[0] != 0:
+                    self.rect.move_ip(-self.speed * sum_mv[0], 0)
+                if sum_mv[1] != 0:
+                    self.rect.move_ip(0, -self.speed * sum_mv[1])        
         if check_bound(self.rect) != (True, True):
             for k, mv in __class__.delta.items():
                 if key_lst[k]:
@@ -155,18 +161,20 @@ class Bird(pg.sprite.Sprite):
 def main():
     pg.display.set_caption("タンクサバイバー")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
-    bg_img = pg.image.load("fig/pg_bg.jpg")
+    bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
     pg.display.set_caption("kabe")
-    
-    tate_bar1 = Wall(200, 300, 30, 300, (0, 0, 255))
-    yoko_bar1 = Wall(300, 200, 1000, 30, (0, 0, 255))
-    tate_bar2 = Wall(1400, 300, 30, 300, (0, 0, 255))
-    yoko_bar2 = Wall(300, 700, 1000, 30, (0, 0, 255))
-    
-    all_sprites = pg.sprite.Group(tate_bar1, yoko_bar1, tate_bar2, yoko_bar2)
+    kb_switch = 1
+   
+    if kb_switch == 1:  
+        tate_bar1 = Wall(775, 300, 30, 300, (0, 0, 255))
+        yoko_bar1 = Wall(300, 300, 475, 30, (0, 0, 255))
+        yoko_bar2 = Wall(775, 600, 475, 30, (0, 0, 255))
+        all_sprites = pg.sprite.Group(tate_bar1, yoko_bar1, yoko_bar2)
+        walls = pg.sprite.Group(tate_bar1, yoko_bar1, yoko_bar2)
 
 
-    bird = Bird(3, (900, 400))
+
+    bird = Bird(3, (200, 600))
     while True:
         key_lst = pg.key.get_pressed()
         for event in pg.event.get():
@@ -176,7 +184,7 @@ def main():
         screen.blit(bg_img, [0, 0])
         all_sprites.draw(screen)
 
-        bird.update(key_lst, screen)
+        bird.update(key_lst, screen,walls)
         pg.display.update()
 
 
