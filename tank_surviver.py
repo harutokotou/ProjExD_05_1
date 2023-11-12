@@ -166,9 +166,9 @@ def main():
     kb_switch = 1
    
     if kb_switch == 1:  
-        tate_bar1 = Wall(775, 300, 30, 300, (0, 0, 255))
-        yoko_bar1 = Wall(300, 300, 475, 30, (0, 0, 255))
-        yoko_bar2 = Wall(775, 600, 475, 30, (0, 0, 255))
+        tate_bar1 = Wall(775, 300, 30, 300, (102, 102, 102))
+        yoko_bar1 = Wall(300, 300, 475, 30, (102, 102, 102))
+        yoko_bar2 = Wall(775, 600, 475, 30, (102, 102, 102))
         all_sprites = pg.sprite.Group(tate_bar1, yoko_bar1, yoko_bar2)
         walls = pg.sprite.Group(tate_bar1, yoko_bar1, yoko_bar2)
 
