@@ -54,7 +54,7 @@ class My_Tank(pg.sprite.Sprite):
         pg.K_RIGHT: (+1, 0),
     }
 
-    def __init__(self, num: int, xy: tuple[int, int]):
+    def __init__(self, xy: tuple[int, int]):
         """
         mytank画像Surfaceを生成する
         引数1 num：こうかとん画像ファイル名の番号
@@ -142,6 +142,8 @@ class My_Tank(pg.sprite.Sprite):
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.dire = tuple(sum_mv)
             self.image = self.imgs[self.dire]
+
+        screen.blit(self.image, self.rect)
     
     def get_direction(self) -> tuple[int, int]:
         return self.dire
@@ -168,7 +170,7 @@ class teki_tank(pg.sprite.Sprite):
         pg.K_a: (-1, 0),
         pg.K_d: (+1, 0),
     }
-    def __init__(self, num: int, xy: tuple[int, int]):
+    def __init__(self, xy: tuple[int, int]):
 
         super().__init__()
         teki_Img = pg.transform.rotozoom(pg.image.load(f"fig/my_tank.png"), 45, 2.0)
@@ -196,7 +198,7 @@ class teki_tank(pg.sprite.Sprite):
         self.hyper_life = -1
     
     def update(self, key_lst: list[bool], screen: pg.Surface):
-        key = pg.key.get_pressed()
+        # key = pg.key.get_pressed()
         """
         押下キーに応じてこうかとんを移動させる
         引数1 key_lst：押下キーの真理値リスト
@@ -220,6 +222,8 @@ class teki_tank(pg.sprite.Sprite):
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.dire = tuple(sum_mv)
             self.image = self.imgs[self.dire]
+
+        screen.blit(self.image, self.rect)
 
     
     def get_direction(self) -> tuple[int, int]:
@@ -259,6 +263,8 @@ class My_Bomb(pg.sprite.Sprite):
 def main():
     #使用するフォント
     screen = Screen(1600, 900, "タンクサバイバー") #ゲームウィンドウの幅 # ゲームウィンドウの高さ
+    #pg.display.set_caption("タンクサバイバー")
+    #screen = pg.display.set_mode((1600, 900))
     bg_img = pg.image.load("fig/pg_bg.jpg") #背景画像を読み込み
     bg2_img = pg.image.load("fig/pg_bg2.jpg")
     pg.display.set_caption("kabe")
@@ -283,7 +289,7 @@ def main():
 
 
     tanks = pg.sprite.Group() #戦車用のコンテナの作成
-    tanks.add(My_Tank(3, (200, 700)), teki_tank(3, (1400, 200)))
+    tanks.add(My_Tank(200, 700), teki_tank(1400, 200))
 
     my_bombs = pg.sprite.Group()
     my_bombs.add(My_Bomb(tanks))
@@ -307,10 +313,13 @@ def main():
             pg.display.update()
             screen.disp.blit(bg_img, [0, 0])
             all_sprites.draw(screen)
+            # tanks = My_Tank(3, (200, 700))
             tanks.update(key_lst, screen)
+            # for t in tanks:
+            #     t.update(key_lst, screen)
             tanks.draw(screen)
-            my_bombs.update()
-            my_bombs.draw(screen)
+            # my_bombs.update()
+            # my_bombs.draw(screen)
 
             text = font_time.render(f"{str(int(time))}s", True, (255, 255, 255))      #描画する経過時間の設定
             screen.disp.blit(text, [700, 20])
@@ -327,7 +336,7 @@ def main():
                 if event.type == pg.QUIT: #QUITになったらFalse
                     return 0
                 if event.type == pg.USEREVENT: #タイマーイベント発生
-                    time -= 10
+                    time -= 1
                     if time < 0:
                         screen_num = 2
                 if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
