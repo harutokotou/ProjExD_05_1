@@ -6,20 +6,28 @@ import time
 import pygame as pg
 
 
-WIDTH = 1600  # ゲームウィンドウの幅
-HEIGHT = 900  # ゲームウィンドウの高さ
+
+class Wall(pg.sprite.Sprite):
+    def __init__(self, x, y, width, height, color):
+        super().__init__()
+        self.image = pg.Surface((width, height))
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+
 
 
 def check_bound(obj: pg.Rect) -> tuple[bool, bool]:
     """
     オブジェクトが画面内か画面外かを判定し，真理値タプルを返す
     引数 obj：オブジェクト（爆弾，戦車）SurfaceのRect
+    引数 obj：オブジェクト（爆弾，戦車，ビーム）SurfaceのRect
     戻り値：横方向，縦方向のはみ出し判定結果（画面内：True／画面外：False）
     """
     yoko, tate = True, True
-    if obj.left < 0 or WIDTH < obj.right:  # 横方向のはみ出し判定
+    if obj.left < 0 or 1600 < obj.right:  # 横方向のはみ出し判定
         yoko = False
-    if obj.top < 0 or HEIGHT < obj.bottom:  # 縦方向のはみ出し判定
+    if obj.top < 0 or 900 < obj.bottom:  # 縦方向のはみ出し判定
         tate = False
     return yoko, tate
 
@@ -123,6 +131,9 @@ class My_Tank(pg.sprite.Sprite):
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.dire = tuple(sum_mv)
             self.image = self.imgs[self.dire]
+    
+    def get_direction(self) -> tuple[int, int]:
+        return self.dire
 
         # screen.blit(self.image, self.rect)
     
@@ -263,7 +274,6 @@ def main():
     # my_bombs = pg.sprite.Group()
     # my_bombs.add(My_Bomb(tanks))
 
-
     while True:
         key_lst = pg.key.get_pressed()
 
@@ -306,9 +316,16 @@ def main():
             pg.display.update()
 
 
-        if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-            my_bombs.update()
-
+        for event in pg.event.get(): 
+                if event.type == pg.QUIT: #QUITになったらFalse
+                    return 0
+                if event.type == pg.USEREVENT: #タイマーイベント発生
+                    time -= 10
+                    if time < 0:
+                        screen_num = 2
+                if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                  my_bomb.add(My_Bomb(tanks))
+                        
 
 if __name__ == "__main__":
     pg.init()
