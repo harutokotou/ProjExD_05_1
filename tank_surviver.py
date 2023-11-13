@@ -72,6 +72,19 @@ class My_Tank(pg.sprite.Sprite):
         self.speed = 10
 
 
+        self.state = "normal"  # 初期状態は通常状態
+        self.hyper_life = -1
+        self.enemy_count = 0
+
+    def change_img(self, num: int, screen: pg.Surface):
+        """
+        こうかとん画像を切り替え，画面に転送する
+        引数1 num：こうかとん画像ファイル名の番号
+        引数2 screen：画面Surface
+        """
+
+        self.image = pg.transform.rotozoom(pg.image.load(f"ex04/fig/{num}.png"), 0, 2.0)
+        screen.blit(self.image, self.rect)
     # def change_img(self, num: int, screen: pg.Surface):
     #     """
     #     戦車画像を切り替え，画面に転送する
@@ -201,7 +214,13 @@ class teki_tank(pg.sprite.Sprite):
             self.dire = tuple(sum_mv)
             self.image = self.imgs[self.dire]
 
-
+        screen.blit(self.image, self.rect)
+        
+        if self.enemy_count >= 3:
+            self.display_victory(screen)
+    
+    
+    
     
     def get_direction(self) -> tuple[int, int]:
         return self.dire
@@ -237,7 +256,36 @@ class My_Bomb(pg.sprite.Sprite):
             self.kill()
 
 
+
+class ScoreDisplay(pg.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.enemy_count = 0
+        self.font = pg.font.SysFont('Consolas', 30)
+    
+    def score(self, tank):
+        self.enemy_count += 1
+
+    def display_victory(self, screen: pg.Surface, WIDTH, HEIGHT):
+        victory_text = "You Win!"
+        text_surface = self.font.render(victory_text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        screen.blit(text_surface, text_rect)
+
+    def display_score(self, screen):
+        score_text = f"Score: {self.enemy_count}"
+        text_surface = self.font.render(score_text, True, (255, 255, 255))
+        screen.blit(text_surface,(100,100))
+
 def main():
+    pg.display.set_caption("タンクサバイバー")
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    bg_img = pg.image.load(r"C:\Users\admin\Desktop\ProjExD2023\ex05-1\fig\pg_bg.jpg")
+   
+    scores = pg.sprite.Group()
+    score_display = ScoreDisplay()
+    scores.add(score_display)
+
     #使用するフォント
     screen = Screen(1600, 900, "タンクサバイバー") #ゲームウィンドウの幅 # ゲームウィンドウの高さ
     #pg.display.set_caption("タンクサバイバー")
@@ -247,6 +295,26 @@ def main():
     pg.display.set_caption("kabe")
 
     font_score, font_time = pg.font.Font(None, 150), pg.font.Font(None, 200)
+
+    
+
+#     bird = Bird(3, (900, 400))
+    num_score = 0
+    while True:
+        key_lst = pg.key.get_pressed()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return 0
+            
+            
+            
+
+        screen.blit(bg_img, [0, 0])
+        # screen.fill((255, 255, 255))
+        bird.update(key_lst, screen)
+        # pg.display.flip()
+        score_display.display_score(screen)
+        pg.display.update()
 
     text1, text2 = pg.font.Font(None, 250), pg.font.Font(None, 150)  #二つのフォントとサイズを読み込む
     screen_num = 0      #スタート画面、プレイ画面、結果画面切り替え用numの初期化
